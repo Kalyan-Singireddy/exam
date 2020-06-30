@@ -1,0 +1,24 @@
+node{
+    stage('SCM Checkout'){
+        git 'https://github.com/Kalyan-Singireddy/exam'
+    }
+    stage('Mvn package'){
+    sh label: '', script: 'mvn clean package'
+}
+stage('Build Docker Image'){
+    sh 'docker build -t kalyanvnks/docky:1.0.0 .'
+}
+stage('push docker image'){
+    withCredentials([string(credentialsId: 'kalyanvnks', variable: 'DockerHubPass')]) {
+    sh "docker login -u kalyanvnks -p ${DockerHubPass}"
+    }
+    
+    sh 'docker push kalyanvnks/docky:1.0.0'
+    
+}
+stage('run container'){
+    sh 'docker run -i -d -p 8081:8080 kalyanvnks/docky:1.0.0'
+  
+}
+
+}
